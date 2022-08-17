@@ -1,2 +1,1 @@
 # gquant
-a quant framework
