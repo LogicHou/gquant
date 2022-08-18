@@ -8,7 +8,7 @@ import (
 
 type Strategy struct {
 	Name      string
-	Platform  string
+	Dialect   string
 	AccessKey string
 	SecretKey string
 	Symbol    string
@@ -16,8 +16,8 @@ type Strategy struct {
 
 func init() {
 	cc := &Strategy{
-		Name:     "demo",
-		Platform: cst.BINANCE,
+		Name:    "demo",
+		Dialect: cst.BINANCE,
 		// AccessKey: config.,
 		// SecretKey:,
 		// Symbol:,
