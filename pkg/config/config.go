@@ -11,13 +11,18 @@ type (
 		v *viper.Viper
 	}
 	Configuration struct {
-		DatabaseSettings
+		Account
+		Trade
 	}
-	DatabaseSettings struct {
-		DatabaseURI  string
-		DatabaseName string
-		Username     string
-		Password     string
+	Account struct {
+		Access_key string
+		Secret_key string
+	}
+	Trade struct {
+		Dialect  string
+		Symbol   string
+		Interval string
+		Leverage float64
 	}
 )
 

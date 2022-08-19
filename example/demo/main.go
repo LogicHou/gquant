@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
 	_ "github.com/LogicHou/gquant/example/demo/strategy"
 	"github.com/LogicHou/gquant/pkg/config"
-	"github.com/LogicHou/gquant/pkg/server"
+	"github.com/LogicHou/gquant/pkg/market"
+	"github.com/LogicHou/gquant/pkg/quant"
 	"go.uber.org/zap"
 )
 
@@ -20,12 +22,14 @@ func main() {
 		log.Fatalf("cannot create logger: %v", err)
 	}
 
-	err = server.Run(&server.SrvConfig{
+	quantController := &quant.Controller{
 		Name:   "binance-futures",
-		Config: config.New("yaml", *configPath),
 		Logger: logger,
-	})
-	if err != nil {
-		log.Fatalf("cannot start server: %v", err)
+		Market: &market.Market{
+			Config: config.New("yaml", *configPath),
+			Logger: logger,
+		},
 	}
+
+	quantController.Run(context.Background())
 }

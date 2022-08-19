@@ -15,3 +15,5 @@
 # vendor/
 
 config.json
+
+*.yaml
