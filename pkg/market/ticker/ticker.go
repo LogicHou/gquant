@@ -2,18 +2,48 @@ package ticker
 
 import (
 	"context"
+	"fmt"
+	"sync"
+
+	"github.com/LogicHou/gquant/pkg/dialect"
+	"github.com/LogicHou/gquant/pkg/indicator"
 )
 
-type Ticker struct {
-	H float64
-	L float64
-	O float64
-	C float64
-	V float64
-	E int64
+type (
+	Subscriber chan *indicator.Ticker
+	Callback   func()
+)
+
+type Publisher struct {
+	sub     Subscriber
+	dialect dialect.Dialect
+	m       sync.RWMutex
 }
 
-func (t *Ticker) Subscribe(c context.Context) (ch chan *Ticker, err error) {
+func NewPublisher(dialect *dialect.Dialect) *Publisher {
+	return &Publisher{
+		sub:     make(Subscriber),
+		dialect: *dialect,
+	}
+}
 
-	return nil, nil
+func (p *Publisher) Subscribe() Subscriber {
+	ch := make(Subscriber)
+	p.sub = ch
+	return ch
+}
+
+func (p *Publisher) Publish(c context.Context) error {
+	ticker, err := p.dialect.Ticker()
+	if err != nil {
+		return fmt.Errorf("cannot get ticker chan: %v", err)
+	}
+
+	go func() {
+		for t := range ticker {
+			p.sub <- t
+		}
+	}()
+
+	return nil
 }

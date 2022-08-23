@@ -17,3 +17,5 @@
 config.json
 
 *.yaml
+
+cmd/

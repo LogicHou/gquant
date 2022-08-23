@@ -7,8 +7,9 @@ import (
 
 	_ "github.com/LogicHou/gquant/example/demo/strategy"
 	"github.com/LogicHou/gquant/pkg/config"
+	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/market"
-	"github.com/LogicHou/gquant/pkg/quant"
+	"github.com/LogicHou/gquant/pkg/market/ticker"
 	"go.uber.org/zap"
 )
 
@@ -22,14 +23,27 @@ func main() {
 		log.Fatalf("cannot create logger: %v", err)
 	}
 
-	quantController := &quant.Controller{
-		Name:   "binance-futures",
-		Logger: logger,
-		Market: &market.Market{
-			Config: config.New("yaml", *configPath),
-			Logger: logger,
-		},
+	cfg := config.New("yaml", *configPath)
+	conf, err := cfg.GetInConfig()
+
+	dialect, err := dialect.Get(conf)
+	dialect.SetClient(conf, logger)
+
+	if err != nil {
+		logger.Fatal("cannot get dialect", zap.Error(err))
 	}
 
-	quantController.Run(context.Background())
+	tickerpub := ticker.NewPublisher(&dialect)
+
+	market := &market.Service{
+		Dialect:         *&dialect,
+		Config:          cfg,
+		Logger:          logger,
+		TickerPublisher: tickerpub,
+	}
+
+	err = market.Serv(context.Background())
+	if err != nil {
+		logger.Fatal("cannot start market service", zap.Error(err))
+	}
 }
