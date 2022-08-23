@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	_ "github.com/LogicHou/gquant/example/demo/strategy"
+	mystrategy "github.com/LogicHou/gquant/example/demo/strategy"
 	"github.com/LogicHou/gquant/pkg/config"
 	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/market"
@@ -25,6 +25,7 @@ func main() {
 
 	cfg := config.New("yaml", *configPath)
 	conf, err := cfg.GetInConfig()
+	conf.Tuning = cfg.GetStringMap("tuning")
 
 	dialect, err := dialect.Get(conf)
 	dialect.SetClient(conf, logger)
@@ -35,9 +36,10 @@ func main() {
 
 	tickerpub := ticker.NewPublisher(&dialect)
 
+	mystrategy := &mystrategy.Strategy{}
+
 	market := &market.Service{
-		Dialect:         *&dialect,
-		Config:          cfg,
+		Strategy:        mystrategy,
 		Logger:          logger,
 		TickerPublisher: tickerpub,
 	}
