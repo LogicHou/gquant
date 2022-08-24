@@ -9,6 +9,7 @@ import (
 	"github.com/LogicHou/gquant/pkg/config"
 	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/market"
+	"github.com/LogicHou/gquant/pkg/market/kline"
 	"github.com/LogicHou/gquant/pkg/market/ticker"
 	"go.uber.org/zap"
 )
@@ -34,14 +35,16 @@ func main() {
 		logger.Fatal("cannot get dialect", zap.Error(err))
 	}
 
-	tickerpub := ticker.NewPublisher(&dialect)
+	tickerPub := ticker.NewPublisher(&dialect)
+	klinePub := kline.NewPublisher(&dialect)
 
 	mystrategy := &mystrategy.Strategy{}
 
 	market := &market.Service{
 		Strategy:        mystrategy,
 		Logger:          logger,
-		TickerPublisher: tickerpub,
+		TickerPublisher: tickerPub,
+		KlinePublisher:  klinePub,
 	}
 
 	err = market.Serv(context.Background())

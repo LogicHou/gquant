@@ -1,28 +1,28 @@
 package mystrategy
 
+import (
+	"fmt"
+
+	"github.com/LogicHou/gquant/pkg/indicator"
+)
+
 type Strategy struct {
-	Name      string
-	Dialect   string
-	AccessKey string
-	SecretKey string
-	Symbol    string
+	ticker *indicator.Ticker
+	klines []*indicator.Kline
 }
 
-func init() {
-	// cc := &Strategy{
-	// 	Name:    "demo",
-	// 	Dialect: cst.BINANCE,
-	// 	// AccessKey: config.,
-	// 	// SecretKey:,
-	// 	// Symbol:,
-	// }
-	// fmt.Println(cc)
+func (s *Strategy) UpdateTicker(ticker *indicator.Ticker) {
+	s.ticker = ticker
 }
 
-func OnKlineUpdate() {
-
+func (s *Strategy) UpdateKlines(klines []*indicator.Kline) {
+	s.klines = klines
 }
 
-func OnTickerUpdate() {
+func (s *Strategy) OnKlineUpdate() {
+	fmt.Printf("%+v\n", s.klines[len(s.klines)-1])
+}
 
+func (s *Strategy) OnTickerUpdate() {
+	fmt.Println("OnTickerUpdate:", s.ticker)
 }

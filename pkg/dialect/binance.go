@@ -2,6 +2,7 @@ package dialect
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/LogicHou/gquant/pkg/config"
 	"github.com/LogicHou/gquant/pkg/indicator"
@@ -25,13 +26,33 @@ func init() {
 
 func (b *binance) SetClient(conf *config.Configuration, logger *zap.Logger) {
 	b.conf = conf
-	b.client = gob.NewFuturesClient(conf.Account.Access_key, conf.Account.Secret_key)
+	b.client = gob.NewFuturesClient(conf.Account.AccessKey, conf.Account.SecretKey)
 	b.client.NewSetServerTimeService().Do(context.Background())
 }
 
 func (b *binance) HistKlines() ([]*indicator.Kline, error) {
-	//TODO
-	return nil, nil
+	klines, err := b.client.NewKlinesService().
+		Symbol(b.conf.Trade.Symbol).
+		Interval(b.conf.Trade.Interval).
+		Limit(b.conf.Trade.HistKRange).Do(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("can not get binance kline service: %v", err)
+	}
+
+	ks := make([]*indicator.Kline, len(klines)-1)
+	for i, v := range klines[:len(klines)-1] {
+		kl := indicator.Kline{
+			OpenTime:  v.OpenTime,
+			CloseTime: v.CloseTime,
+			Open:      utils.StrToF64(v.Open),
+			High:      utils.StrToF64(v.High),
+			Low:       utils.StrToF64(v.Low),
+			Close:     utils.StrToF64(v.Close),
+			Volume:    utils.StrToF64(v.Volume),
+		}
+		ks[i] = &kl
+	}
+	return ks, nil
 }
 
 func (b *binance) Ticker() (chan *indicator.Ticker, error) {

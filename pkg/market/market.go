@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"time"
 
 	"syscall"
 
-	"github.com/LogicHou/gquant/pkg/config"
-	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/indicator"
+	"github.com/LogicHou/gquant/pkg/market/kline"
 	"github.com/LogicHou/gquant/pkg/market/ticker"
 	"go.uber.org/zap"
 )
@@ -21,33 +19,54 @@ type TickerPublisher interface {
 	Subscribe() ticker.Subscriber
 }
 
-type KlineSubscriber interface {
-	Subscribe(ctx context.Context) (ch <-chan *indicator.Kline, err error)
+type KlinePublisher interface {
+	Publish(context.Context) (chan struct{}, error)
+	Subscribe() kline.Subscriber
+}
+
+type Strategy interface {
+	UpdateTicker(*indicator.Ticker)
+	UpdateKlines([]*indicator.Kline)
+	OnKlineUpdate()
+	OnTickerUpdate()
 }
 
 type Service struct {
-	Config          *config.Cfg
-	Dialect         dialect.Dialect
 	Logger          *zap.Logger
+	Strategy        Strategy
 	TickerPublisher TickerPublisher
-	KlineSubscriber KlineSubscriber
+	KlinePublisher  KlinePublisher
 }
 
 func (s *Service) Serv(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
-
+	defer cancel()
 	s.Logger.Info("Running quant.", zap.String("market type", "futures"))
+
+	klineSub := s.KlinePublisher.Subscribe()
+	go func() {
+		for {
+			s.Strategy.UpdateKlines(<-klineSub)
+			s.Strategy.OnKlineUpdate()
+		}
+	}()
+
+	klineUpdateTrigger, err := s.KlinePublisher.Publish(ctx)
+	if err != nil {
+		return fmt.Errorf("can not get publish: %v", err)
+	}
+
+	klineUpdateTrigger <- struct{}{}
+
 	tickerSub := s.TickerPublisher.Subscribe()
 	go func() {
 		for t := range tickerSub {
-			fmt.Println(t)
+			s.Strategy.UpdateTicker(t)
+			s.Strategy.OnTickerUpdate()
 		}
 	}()
-	go func() {
-		time.Sleep(time.Second * 15)
-		cancel()
-	}()
-	err := s.TickerPublisher.Publish(ctx)
+
+	err = s.TickerPublisher.Publish(ctx)
 	if err != nil {
 		return fmt.Errorf("can not get publish: %v", err)
 	}

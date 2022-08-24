@@ -16,14 +16,15 @@ type (
 		Tuning map[string]interface{}
 	}
 	Account struct {
-		Access_key string
-		Secret_key string
+		AccessKey string
+		SecretKey string
 	}
 	Trade struct {
-		Dialect  string
-		Symbol   string
-		Interval string
-		Leverage float64
+		Dialect    string
+		Symbol     string
+		Interval   string
+		Leverage   float64
+		HistKRange int
 	}
 )
 

@@ -3,7 +3,6 @@ package ticker
 import (
 	"context"
 	"fmt"
-	"sync"
 
 	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/indicator"
@@ -17,7 +16,6 @@ type (
 type Publisher struct {
 	sub     Subscriber
 	dialect dialect.Dialect
-	m       sync.RWMutex
 }
 
 func NewPublisher(dialect *dialect.Dialect) *Publisher {

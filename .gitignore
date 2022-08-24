@@ -19,3 +19,4 @@ config.json
 *.yaml
 
 cmd/
+example/my/
