@@ -36,9 +36,12 @@ func main() {
 	}
 
 	tickerPub := ticker.NewPublisher(&dialect)
-	klinePub := kline.NewPublisher(&dialect)
+	klinePub := kline.NewPublisher(&dialect, logger)
 
-	mystrategy := &mystrategy.Strategy{}
+	mystrategy := &mystrategy.Strategy{
+		Logger: logger,
+		Conf:   conf,
+	}
 
 	market := &market.Service{
 		Strategy:        mystrategy,

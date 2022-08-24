@@ -20,15 +20,14 @@ type TickerPublisher interface {
 }
 
 type KlinePublisher interface {
-	Publish(context.Context) (chan struct{}, error)
+	Publish(context.Context) chan struct{}
 	Subscribe() kline.Subscriber
 }
 
 type Strategy interface {
-	UpdateTicker(*indicator.Ticker)
-	UpdateKlines([]*indicator.Kline)
-	OnKlineUpdate()
-	OnTickerUpdate()
+	OnTickerUpdate(*indicator.Ticker) bool
+	OnKlineUpdate([]*indicator.Kline)
+	SetKlineUpdateTrigger(chan struct{})
 }
 
 type Service struct {
@@ -46,27 +45,21 @@ func (s *Service) Serv(ctx context.Context) error {
 	klineSub := s.KlinePublisher.Subscribe()
 	go func() {
 		for {
-			s.Strategy.UpdateKlines(<-klineSub)
-			s.Strategy.OnKlineUpdate()
+			s.Strategy.OnKlineUpdate(<-klineSub)
 		}
 	}()
 
-	klineUpdateTrigger, err := s.KlinePublisher.Publish(ctx)
-	if err != nil {
-		return fmt.Errorf("can not get publish: %v", err)
-	}
-
-	klineUpdateTrigger <- struct{}{}
+	klineUpdateTrigger := s.KlinePublisher.Publish(ctx)
+	s.Strategy.SetKlineUpdateTrigger(klineUpdateTrigger)
 
 	tickerSub := s.TickerPublisher.Subscribe()
 	go func() {
 		for t := range tickerSub {
-			s.Strategy.UpdateTicker(t)
-			s.Strategy.OnTickerUpdate()
+			s.Strategy.OnTickerUpdate(t)
 		}
 	}()
 
-	err = s.TickerPublisher.Publish(ctx)
+	err := s.TickerPublisher.Publish(ctx)
 	if err != nil {
 		return fmt.Errorf("can not get publish: %v", err)
 	}

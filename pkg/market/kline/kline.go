@@ -2,10 +2,10 @@ package kline
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/indicator"
+	"go.uber.org/zap"
 )
 
 type (
@@ -16,12 +16,14 @@ type (
 type Publisher struct {
 	sub     Subscriber
 	dialect dialect.Dialect
+	logger  *zap.Logger
 }
 
-func NewPublisher(dialect *dialect.Dialect) *Publisher {
+func NewPublisher(dialect *dialect.Dialect, logger *zap.Logger) *Publisher {
 	return &Publisher{
 		sub:     make(Subscriber),
 		dialect: *dialect,
+		logger:  logger,
 	}
 }
 
@@ -31,19 +33,21 @@ func (p *Publisher) Subscribe() Subscriber {
 	return ch
 }
 
-func (p *Publisher) Publish(c context.Context) (chan struct{}, error) {
+func (p *Publisher) Publish(c context.Context) chan struct{} {
 	trigger := make(chan struct{})
-	klines, err := p.dialect.HistKlines()
-	if err != nil {
-		return nil, fmt.Errorf("cannot get ticker chan: %v", err)
-	}
 
 	go func() {
 		for {
 			<-trigger
+			klines, err := p.dialect.HistKlines()
+			if err != nil {
+				p.logger.Error("cannot resolve account id", zap.Error(err))
+			}
 			p.sub <- klines
 		}
 	}()
 
-	return trigger, nil
+	trigger <- struct{}{}
+
+	return trigger
 }

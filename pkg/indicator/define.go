@@ -27,3 +27,5 @@ type Ticker struct {
 	S int64   // StartTime
 	E int64   // EndTime
 }
+
+var RefreshTime = map[string]int64{"4h": 14404000, "1h": 3604000, "30m": 1804000, "15m": 904000, "5m": 304000, "1m": 64000}
