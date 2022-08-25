@@ -25,9 +25,9 @@ type KlinePublisher interface {
 }
 
 type Strategy interface {
+	SetStrategy(chan struct{})
 	OnTickerUpdate(*indicator.Ticker) bool
 	OnKlineUpdate([]*indicator.Kline)
-	SetKlineUpdateTrigger(chan struct{})
 }
 
 type Service struct {
@@ -50,7 +50,7 @@ func (s *Service) Serv(ctx context.Context) error {
 	}()
 
 	klineUpdateTrigger := s.KlinePublisher.Publish(ctx)
-	s.Strategy.SetKlineUpdateTrigger(klineUpdateTrigger)
+	s.Strategy.SetStrategy(klineUpdateTrigger)
 
 	tickerSub := s.TickerPublisher.Subscribe()
 	go func() {

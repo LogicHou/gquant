@@ -15,7 +15,7 @@ type Strategy struct {
 	klines             []*indicator.Kline
 	lastKline          *indicator.Kline
 	klineUpdateTrigger chan struct{}
-	pid                pid
+	pid                *pid
 }
 
 type pid struct {
@@ -29,7 +29,17 @@ type pid struct {
 	MSLTrigger   float64
 }
 
-func (s *Strategy) SetKlineUpdateTrigger(trigger chan struct{}) {
+func (s *Strategy) SetStrategy(trigger chan struct{}) {
+	s.pid = &pid{
+		PosAmt:       0,
+		PosQty:       0,
+		EntryPrice:   0.00,
+		PosSide:      "",
+		StopLoss:     0.00,
+		Openk:        0.00,
+		MoveStopLoss: nil,
+		MSLTrigger:   0.00,
+	}
 	s.klineUpdateTrigger = trigger
 }
 
@@ -47,7 +57,9 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 				break
 			}
 		}
+		s.Logger.Sugar().Infof("KlineUpdated--> PosSide:%s PosAmt:%f PosQty:%d EntryPrice:%f Leverage:%f StopLoss:%f\n", s.pid.PosSide, s.pid.PosAmt, s.pid.PosQty, s.pid.EntryPrice, s.Conf.Trade.Leverage, s.pid.StopLoss)
 	}
+
 	return false
 }
 
