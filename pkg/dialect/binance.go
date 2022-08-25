@@ -41,7 +41,7 @@ func (b *binance) HistKlines() ([]*indicator.Kline, error) {
 
 	ks := make([]*indicator.Kline, len(klines)-1)
 	for i, v := range klines[:len(klines)-1] {
-		kl := indicator.Kline{
+		ks[i] = &indicator.Kline{
 			OpenTime:  v.OpenTime,
 			CloseTime: v.CloseTime,
 			Open:      utils.StrToF64(v.Open),
@@ -50,7 +50,6 @@ func (b *binance) HistKlines() ([]*indicator.Kline, error) {
 			Close:     utils.StrToF64(v.Close),
 			Volume:    utils.StrToF64(v.Volume),
 		}
-		ks[i] = &kl
 	}
 	return ks, nil
 }

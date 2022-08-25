@@ -20,3 +20,5 @@ config.json
 
 cmd/
 example/my/
+
+klines.json

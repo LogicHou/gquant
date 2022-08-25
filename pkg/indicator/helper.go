@@ -36,3 +36,15 @@ func asFloat64(values []int64) []float64 {
 
 	return result
 }
+
+func multiply(values1, values2 []float64) []float64 {
+	checkSameSize(values1, values2)
+
+	result := make([]float64, len(values1))
+
+	for i := 0; i < len(result); i++ {
+		result[i] = values1[i] * values2[i]
+	}
+
+	return result
+}
