@@ -48,3 +48,29 @@ func multiply(values1, values2 []float64) []float64 {
 
 	return result
 }
+
+func multiplyBy(values []float64, multiplier float64) []float64 {
+	result := make([]float64, len(values))
+
+	for i, value := range values {
+		result[i] = value * multiplier
+	}
+
+	return result
+}
+
+func add(values1, values2 []float64) []float64 {
+	checkSameSize(values1, values2)
+
+	result := make([]float64, len(values1))
+	for i := 0; i < len(result); i++ {
+		result[i] = values1[i] + values2[i]
+	}
+
+	return result
+}
+
+func subtract(values1, values2 []float64) []float64 {
+	subtract := multiplyBy(values2, float64(-1))
+	return add(values1, subtract)
+}

@@ -61,70 +61,117 @@ func getKlins() []*Kline {
 	return ks
 }
 
-func TestRsi(t *testing.T) {
+func TestSma(t *testing.T) {
 	klines := getKlins()
 	klen := len(klines)
 	closing := make([]float64, klen)
-	volume := make([]int64, klen)
-	high := make([]float64, klen)
-	low := make([]float64, klen)
+	// add cur close
+	closing = append(closing, 1676.37)
 
 	for i := 0; i < klen; i++ {
 		closing[i] = klines[i].Close
-		volume[i] = int64(klines[i].Volume)
-		high[i] = klines[i].High
-		low[i] = klines[i].Low
 	}
-	_, rsi := RsiPeriod(6, closing)
-	last10 := rsi[len(rsi)-10:]
+	sma := Sma(22, closing)
+	last10 := sma[len(sma)-10:]
 
 	cases := []float64{
-		59.29,
-		51.91,
-		61.63,
-		60.32,
-		54.43,
-		41.51,
-		44.81,
-		54.87,
-		70.51,
-		67.56,
+		1647.07,
+		1647.33,
+		1648.23,
+		1649.76,
+		1652.33,
+		1655.09,
+		1657.53,
+		1658.99,
+		1660.41,
+		1662.70, // cur sma
 	}
+
 	for i, cc := range cases {
-		got := utils.FRound2(last10[9-i])
+		got := utils.FRound2(last10[i])
 		if cc != got {
 			t.Errorf("incorrect result; want: %f got: %f", cc, got)
 		}
 	}
 }
 
-func TestSma(t *testing.T) {
+func TestRsi(t *testing.T) {
 	klines := getKlins()
 	klen := len(klines)
 	closing := make([]float64, klen)
+	// add cur close
+	closing = append(closing, 1676.37)
 
 	for i := 0; i < klen; i++ {
 		closing[i] = klines[i].Close
 	}
-	sma := Sma(20, closing)
-	last10 := sma[len(sma)-10:]
+	_, rsi := RsiPeriod(6, closing)
+	last10 := rsi[len(rsi)-10:]
 
 	cases := []float64{
-		1663.48,
-		1661.36,
-		1659.22,
-		1657.64,
-		1655.75,
-		1653.49,
-		1651.39,
-		1648.98,
-		1646.59,
-		1644.46,
+		70.51,
+		54.87,
+		44.81,
+		41.51,
+		54.43,
+		60.32,
+		61.63,
+		51.91,
+		59.29,
+		60.02, // cur rsi
 	}
 	for i, cc := range cases {
-		got := utils.FRound2(last10[9-i])
+		got := utils.FRound2(last10[i])
 		if cc != got {
 			t.Errorf("incorrect result; want: %f got: %f", cc, got)
+		}
+	}
+}
+
+func TestKdj(t *testing.T) {
+	klines := getKlins()
+	klen := len(klines)
+	closing := make([]float64, klen)
+	high := make([]float64, klen)
+	low := make([]float64, klen)
+	// add cur close, high, low
+	closing = append(closing, 1676.37)
+	high = append(high, 1679.60)
+	low = append(low, 1674.74)
+
+	for i := 0; i < klen; i++ {
+		closing[i] = klines[i].Close
+		high[i] = klines[i].High
+		low[i] = klines[i].Low
+	}
+
+	k, d, _ := Kdj(9, 3, 3, high, low, closing)
+	last10k := k[len(k)-10:]
+	last10d := d[len(d)-10:]
+
+	cases := []struct {
+		k float64
+		d float64
+	}{
+		{k: 72.96, d: 71.48},
+		{k: 66.57, d: 69.85},
+		{k: 55.58, d: 65.09},
+		{k: 44.07, d: 58.08},
+		{k: 42.88, d: 53.02},
+		{k: 49.02, d: 51.69},
+		{k: 54.36, d: 52.58},
+		{k: 52.06, d: 52.41},
+		{k: 57.85, d: 54.22},
+		{k: 62.31, d: 56.92}, // cur kd
+	}
+	for i, cc := range cases {
+		gotk := utils.FRound2(last10k[i])
+		gotd := utils.FRound2(last10d[i])
+		if cc.k != gotk {
+			t.Errorf("incorrect result k; want: %f got: %f", cc.k, gotk)
+		}
+		if cc.d != gotd {
+			t.Errorf("incorrect result d; want: %f got: %f", cc.d, gotd)
 		}
 	}
 }
