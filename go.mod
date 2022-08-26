@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/adshao/go-binance/v2 v2.3.8
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.7.1
 	go.uber.org/zap v1.17.0

@@ -19,6 +19,7 @@ config.json
 *.yaml
 
 cmd/
-example/my/
+example/kdj/
+example/vwap/
 
 klines.json
