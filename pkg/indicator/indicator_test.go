@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"testing"
 
 	"github.com/LogicHou/gquant/pkg/config"
@@ -27,7 +26,7 @@ func getKlins() []*Kline {
 		return ks
 	}
 
-	log.Println("start create json file")
+	// log.Println("start create json file")
 	client.NewSetServerTimeService().Do(context.Background())
 	klines, err := client.NewKlinesService().
 		Symbol("ETHUSDT").
@@ -172,6 +171,49 @@ func TestKdj(t *testing.T) {
 		}
 		if cc.d != gotd {
 			t.Errorf("incorrect result d; want: %f got: %f", cc.d, gotd)
+		}
+	}
+}
+
+func TestVwap(t *testing.T) {
+	klines := getKlins()
+	klen := len(klines)
+	avg := make([]float64, klen)
+	high := make([]float64, klen)
+	low := make([]float64, klen)
+	volume := make([]float64, klen)
+	// add cur avg, high, low, volume
+	avg = append(avg, 1676.37)
+	high = append(high, 1679.60)
+	low = append(low, 1674.74)
+	volume = append(volume, 53747.00)
+
+	for i := 0; i < klen; i++ {
+		avg[i] = (klines[i].Close + klines[i].High + klines[i].Low) / 3
+		high[i] = klines[i].High
+		low[i] = klines[i].Low
+		volume[i] = float64(klines[i].Volume)
+	}
+
+	vwaping := Vwap(20, avg, volume)
+	last10 := vwaping[len(vwaping)-10:]
+
+	cases := []float64{
+		1647.36,
+		1649.41,
+		1652.10,
+		1653.90,
+		1655.53,
+		1657.82,
+		1659.05,
+		1661.50,
+		1663.23,
+		1664.22, // cur
+	}
+	for i, cc := range cases {
+		got := utils.FRound2(last10[i])
+		if cc != got {
+			t.Errorf("incorrect result; want: %f got: %f offset: %f", cc, got, got-cc)
 		}
 	}
 }
