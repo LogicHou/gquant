@@ -29,3 +29,51 @@ type Ticker struct {
 }
 
 var RefreshTime = map[string]int64{"4h": 14404000, "1h": 3604000, "30m": 1804000, "15m": 904000, "5m": 304000, "1m": 64000}
+
+type Indicator struct {
+	closing []float64
+	high    []float64
+	low     []float64
+	volume  []float64
+	chlAvg  []float64
+}
+
+func New(klines []*Kline) *Indicator {
+	klen := len(klines)
+	closing := make([]float64, klen)
+	high := make([]float64, klen)
+	low := make([]float64, klen)
+	volume := make([]float64, klen)
+	chlAvg := make([]float64, klen)
+
+	for i := 0; i < klen; i++ {
+		closing[i] = klines[i].Close
+		high[i] = klines[i].High
+		low[i] = klines[i].Low
+		volume[i] = float64(klines[i].Volume)
+		chlAvg[i] = (klines[i].Close + klines[i].High + klines[i].Low) / 3
+	}
+
+	return &Indicator{
+		closing: closing,
+		high:    high,
+		low:     low,
+		volume:  volume,
+		chlAvg:  chlAvg,
+	}
+}
+
+func (i *Indicator) WithVwap(period int) []float64 {
+	return Vwap(period, i.chlAvg, i.volume)
+}
+
+func (i *Indicator) WithRsi(period int) []float64 {
+	_, rsi := RsiPeriod(6, i.closing)
+	return rsi
+}
+
+func (i *Indicator) WithKdj() {
+}
+
+func (i *Indicator) WithSma() {
+}

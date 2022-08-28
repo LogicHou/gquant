@@ -14,8 +14,10 @@ type Dialect interface {
 	SetClient(*config.Configuration, *zap.Logger)
 	HistKlines() ([]*indicator.Kline, error)
 	Ticker() (chan *indicator.Ticker, error)
-	CreateMarketOrder(action string, price float64, qty float64, maxStopLoss float64) error
-	ClosePosition(posAmt float64) error
+	CreateMarketOrder(string, float64, float64, float64)
+	ClosePosition(float64)
+	PostionRisk() (float64, float64, float64, string)
+	GetOpenOrder() (float64, int64)
 }
 
 func Register(name string, dialect Dialect) {
