@@ -72,8 +72,11 @@ func (i *Indicator) WithRsi(period int) []float64 {
 	return rsi
 }
 
-func (i *Indicator) WithKdj() {
+func (i *Indicator) WithKdj(rPeriod, kPeriod, dPeriod int) ([]float64, []float64) {
+	k, d, _ := Kdj(rPeriod, kPeriod, dPeriod, i.high, i.low, i.closing)
+	return k, d
 }
 
-func (i *Indicator) WithSma() {
+func (i *Indicator) WithSma(period int) []float64 {
+	return Sma(period, i.closing)
 }

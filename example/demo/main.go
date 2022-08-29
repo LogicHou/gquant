@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	mystrategy "github.com/LogicHou/gquant/example/demo/strategy"
+	"github.com/LogicHou/gquant/example/demo/strategy"
 	"github.com/LogicHou/gquant/pkg/config"
 	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/market"
@@ -38,13 +38,13 @@ func main() {
 	tickerPub := ticker.NewPublisher(&dialect)
 	klinePub := kline.NewPublisher(&dialect, logger)
 
-	mystrategy := &mystrategy.Strategy{
+	strategy := &strategy.Strategy{
 		Logger: logger,
 		Conf:   conf,
 	}
 
 	market := &market.Service{
-		Strategy:        mystrategy,
+		Strategy:        strategy,
 		Logger:          logger,
 		TickerPublisher: tickerPub,
 		KlinePublisher:  klinePub,
