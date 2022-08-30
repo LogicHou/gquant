@@ -15,11 +15,14 @@ import (
 )
 
 var configPath = flag.String("c", "config.yaml", "config file path")
+var logFilePath = flag.String("l", "trade.log", "log file path")
 
 func main() {
 	flag.Parse()
 
-	logger, err := zap.NewDevelopment()
+	loggerCfg := zap.NewDevelopmentConfig()
+	loggerCfg.OutputPaths = []string{"stdout", *logFilePath}
+	logger, err := loggerCfg.Build()
 	if err != nil {
 		log.Fatalf("cannot create logger: %v", err)
 	}
