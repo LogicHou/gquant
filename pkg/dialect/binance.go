@@ -92,7 +92,7 @@ func (b *binance) CreateMarketOrder(action string, price float64, qty float64, m
 	sideStop := futures.SideTypeBuy
 	sideType := futures.SideTypeSell
 	offset := +5.0
-	if action == "buy" {
+	if action == indicator.ActionBuy {
 		sideType = futures.SideTypeBuy
 		sideStop = futures.SideTypeSell
 		offset = -5.0
@@ -158,10 +158,10 @@ func (b *binance) PostionRisk() (posAmt float64, entryPrice float64, leverage fl
 	leverage = utils.StrToF64(res[0].Leverage)
 
 	if posAmt > 0 {
-		posSide = "buy"
+		posSide = indicator.ActionBuy
 	}
 	if posAmt < 0 {
-		posSide = "sell"
+		posSide = indicator.ActionSell
 	}
 	return
 }

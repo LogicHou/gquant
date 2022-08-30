@@ -33,17 +33,17 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 	// 开仓逻辑
 	if s.pid.PosAmt == 0 {
 		if curMa5 < curMa10 {
-			s.pid.PosSide = "buy"
+			s.pid.PosSide = indicator.ActionBuy
 		} else if curMa5 > curMa10 {
-			s.pid.PosSide = "sell"
+			s.pid.PosSide = indicator.ActionSell
 		}
 		fmt.Println(curMa5, curMa10, s.pid.PosSide)
 
 		if s.openCondition(curMa5, curMa10) {
 			switch s.pid.PosSide {
-			case "buy":
+			case indicator.ActionBuy:
 				s.pid.StopLoss = s.lastKline.Low
-			case "sell":
+			case indicator.ActionSell:
 				s.pid.StopLoss = s.lastKline.High
 			}
 			s.pid.PosAmt = 0.3
@@ -58,9 +58,9 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 	if s.pid.PosQty > 1 {
 		if s.tpCondition() {
 			switch s.pid.PosSide {
-			case "buy":
+			case indicator.ActionBuy:
 				s.Logger.Sugar().Infof("TP - Action: BUY  Close: %f Ratio: %f", s.ticker.C, (s.ticker.C/s.pid.EntryPrice-1)*100)
-			case "sell":
+			case indicator.ActionSell:
 				s.Logger.Sugar().Infof("TP - Action: SELL Close: %f Ratio: %f", s.ticker.C, (s.pid.EntryPrice/s.ticker.C-1)*100)
 			}
 			s.resetPid()
@@ -71,9 +71,9 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 	// 止损逻辑
 	if s.stCondition() {
 		switch s.pid.PosSide {
-		case "buy":
+		case indicator.ActionBuy:
 			s.Logger.Sugar().Infof("ST - Action: BUY   Close: %f Ratio: %f", s.ticker.C, (s.ticker.C/s.pid.EntryPrice-1)*100)
-		case "sell":
+		case indicator.ActionSell:
 			s.Logger.Sugar().Infof("ST - Action: SELL  Close: %f Ratio: %f", s.ticker.C, (s.ticker.C/s.pid.EntryPrice-1)*100)
 		}
 		s.resetPid()

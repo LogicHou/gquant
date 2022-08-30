@@ -38,6 +38,11 @@ type Indicator struct {
 	chlAvg  []float64
 }
 
+const (
+	ActionBuy  string = "BUY"
+	ActionSell string = "SELL"
+)
+
 func New(klines []*Kline) *Indicator {
 	klen := len(klines)
 	closing := make([]float64, klen)
