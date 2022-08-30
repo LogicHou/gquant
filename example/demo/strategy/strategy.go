@@ -4,45 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/LogicHou/gquant/pkg/config"
 	"github.com/LogicHou/gquant/pkg/indicator"
-	"go.uber.org/zap"
 )
-
-type Strategy struct {
-	Conf               *config.Configuration
-	Logger             *zap.Logger
-	ticker             *indicator.Ticker
-	klines             []*sKline
-	lastKline          *sKline
-	klineUpdateTrigger chan struct{}
-	pid                *pid
-}
-
-type pid struct {
-	PosAmt     float64
-	PosQty     int
-	EntryPrice float64
-	PosSide    string
-	StopLoss   float64
-}
-
-func (s *Strategy) SetStrategy(trigger chan struct{}) {
-	s.pid = &pid{
-		PosAmt:     0,
-		PosQty:     0,
-		EntryPrice: 0.00,
-		PosSide:    "",
-		StopLoss:   0.00,
-	}
-	s.klineUpdateTrigger = trigger
-}
-
-type sKline struct {
-	*indicator.Kline
-	ma5  float64
-	ma10 float64
-}
 
 func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 	s.ticker = ticker
@@ -85,7 +48,7 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 			}
 			s.pid.PosAmt = 0.3
 			s.pid.EntryPrice = s.ticker.C
-			fmt.Printf("开单，买卖方向：%s 开仓价：%f 止损位：%f 持仓数量：%f\n", s.pid.PosSide, s.ticker.C, s.pid.StopLoss, s.pid.PosAmt)
+			s.Logger.Sugar().Infof("OP - Action: %s  EntryPrice: %f STOPLOSS: %f PosAmt: %f", s.pid.PosSide, s.pid.EntryPrice, s.pid.StopLoss, s.pid.PosAmt)
 			time.Sleep(time.Second * 3)
 		}
 		return true
@@ -96,9 +59,9 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 		if s.tpCondition() {
 			switch s.pid.PosSide {
 			case "buy":
-				fmt.Println("止盈 差值：", s.ticker.C-s.pid.EntryPrice)
+				s.Logger.Sugar().Infof("TP - Action: BUY  Close: %f Ratio: %f", s.ticker.C, (s.ticker.C/s.pid.EntryPrice-1)*100)
 			case "sell":
-				fmt.Println("止盈 差值：", s.pid.EntryPrice-s.ticker.C)
+				s.Logger.Sugar().Infof("TP - Action: SELL Close: %f Ratio: %f", s.ticker.C, (s.pid.EntryPrice/s.ticker.C-1)*100)
 			}
 			s.resetPid()
 		}
@@ -109,9 +72,9 @@ func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 	if s.stCondition() {
 		switch s.pid.PosSide {
 		case "buy":
-			fmt.Println("止损 差值：", s.ticker.C-s.pid.EntryPrice)
+			s.Logger.Sugar().Infof("ST - Action: BUY   Close: %f Ratio: %f", s.ticker.C, (s.ticker.C/s.pid.EntryPrice-1)*100)
 		case "sell":
-			fmt.Println("止损 差值：", s.pid.EntryPrice-s.ticker.C)
+			s.Logger.Sugar().Infof("ST - Action: SELL  Close: %f Ratio: %f", s.ticker.C, (s.ticker.C/s.pid.EntryPrice-1)*100)
 		}
 		s.resetPid()
 	}
@@ -132,5 +95,5 @@ func (s *Strategy) OnKlineUpdate(klines []*indicator.Kline) {
 	s.klines = sKlines
 	s.lastKline = s.klines[len(s.klines)-1]
 
-	s.Logger.Sugar().Infof("KlineUpdated--> PosSide:%s PosAmt:%f PosQty:%d EntryPrice:%f Leverage:%f StopLoss:%f\n", s.pid.PosSide, s.pid.PosAmt, s.pid.PosQty, s.pid.EntryPrice, s.Conf.Trade.Leverage, s.pid.StopLoss)
+	// s.Logger.Sugar().Infof("KlineUpdated--> PosSide:%s PosAmt:%f PosQty:%d EntryPrice:%f Leverage:%f StopLoss:%f\n", s.pid.PosSide, s.pid.PosAmt, s.pid.PosQty, s.pid.EntryPrice, s.Conf.Trade.Leverage, s.pid.StopLoss)
 }
