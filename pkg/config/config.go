@@ -13,7 +13,7 @@ type (
 	Configuration struct {
 		Account
 		Trade
-		Tuning map[string]interface{}
+		Tune map[string]interface{}
 	}
 	Account struct {
 		AccessKey string

@@ -29,7 +29,7 @@ func main() {
 
 	cfg := config.New("yaml", *configPath)
 	conf, err := cfg.GetInConfig()
-	conf.Tuning = cfg.GetStringMap("tuning")
+	conf.Tune = cfg.GetStringMap("tune")
 
 	dialect, err := dialect.Get(conf)
 	dialect.SetClient(conf, logger)
