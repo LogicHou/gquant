@@ -99,24 +99,24 @@ func (b *binance) CreateMarketOrder(action indicator.ActionType, qty float64, st
 	}
 
 	// 预埋止损单 RestAPI
-	order, err := b.client.NewCreateOrderService().Symbol(b.conf.Symbol).
+	_, err = b.client.NewCreateOrderService().Symbol(b.conf.Symbol).
 		Side(sideStop).Type("STOP_MARKET").
 		ClosePosition(true).StopPrice(utils.F64ToStr(utils.FRound2(stoploss + offset))).
 		Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot create stoploss market order: %v", err)
 	}
-	b.logger.Info("STOP_MARKET Order", zap.Any("order", order))
+	// b.logger.Info("STOP_MARKET Order", zap.Any("order", order))
 
 	// 新建市价单
-	order, err = b.client.NewCreateOrderService().Symbol(b.conf.Symbol).
+	_, err = b.client.NewCreateOrderService().Symbol(b.conf.Symbol).
 		Side(sideType).Type("MARKET").
 		Quantity(utils.F64ToStr(qty)).
 		Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot create market order: %v", err)
 	}
-	b.logger.Info("MARKET Order", zap.Any("order", order))
+	// b.logger.Info("MARKET Order", zap.Any("order", order))
 
 	return nil
 }
