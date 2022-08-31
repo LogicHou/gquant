@@ -20,11 +20,14 @@ type (
 		SecretKey string
 	}
 	Trade struct {
-		Dialect    string
-		Symbol     string
-		Interval   string
-		Leverage   float64
-		HistKRange int
+		Dialect     string
+		Symbol      string
+		Interval    string
+		Leverage    float64
+		HistKRange  int
+		Margin      float64
+		MarginRatio float64
+		MarginLimit float64
 	}
 )
 

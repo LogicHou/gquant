@@ -38,9 +38,11 @@ type Indicator struct {
 	chlAvg  []float64
 }
 
+type ActionType string
+
 const (
-	ActionBuy  string = "BUY"
-	ActionSell string = "SELL"
+	ActionBuy  ActionType = "BUY"
+	ActionSell ActionType = "SELL"
 )
 
 func New(klines []*Kline) *Indicator {

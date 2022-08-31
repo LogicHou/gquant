@@ -5,6 +5,7 @@ import (
 
 	"github.com/LogicHou/gquant/pkg/config"
 	"github.com/LogicHou/gquant/pkg/indicator"
+	"github.com/adshao/go-binance/v2/futures"
 	"go.uber.org/zap"
 )
 
@@ -14,10 +15,11 @@ type Dialect interface {
 	SetClient(*config.Configuration, *zap.Logger)
 	HistKlines() ([]*indicator.Kline, error)
 	Ticker() (chan *indicator.Ticker, error)
-	CreateMarketOrder(string, float64, float64, float64)
-	ClosePosition(float64)
-	PostionRisk() (float64, float64, float64, string)
-	GetOpenOrder() (float64, int64)
+	CreateMarketOrder(indicator.ActionType, float64, float64) error
+	ClosePosition(float64) error
+	PostionRisk() (float64, float64, float64, indicator.ActionType, error)
+	GetOpenOrder() (float64, int64, error)
+	GetAccountInfo() (*futures.Account, error)
 }
 
 func Register(name string, dialect Dialect) {
