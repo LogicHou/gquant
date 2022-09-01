@@ -14,6 +14,7 @@ import (
 
 var processName = flag.String("p", "main", "process name")
 var processNamePath = flag.String("r", "./", "process name route")
+var retry = flag.Int("t", 10, "retry count")
 
 func findProcessID(processName *string) (int, error) {
 	buf := bytes.Buffer{}
@@ -40,6 +41,7 @@ func getNowTime() string {
 
 func main() {
 	flag.Parse()
+	retryCount := 0
 
 	pid, err := findProcessID(processName)
 	if pid > 0 {
@@ -59,6 +61,10 @@ func main() {
 		Env:   os.Environ(),
 	}
 	for {
+		if retryCount >= *retry {
+			fmt.Println("max retry!")
+			break
+		}
 		_, err := findProcessID(processName)
 		if err != nil {
 			p, err := os.StartProcess(*processNamePath+*processName, []string{*processNamePath + *processName}, attr)
@@ -72,6 +78,7 @@ func main() {
 			p.Wait()
 			time.Sleep(1 * time.Second)
 			fmt.Println("start ", processName)
+			retryCount++
 		}
 	}
 }

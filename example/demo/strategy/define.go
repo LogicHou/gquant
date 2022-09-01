@@ -20,7 +20,7 @@ type pid struct {
 	PosAmt     float64
 	PosQty     int
 	EntryPrice float64
-	PosSide    string
+	PosSide    indicator.ActionType
 	StopLoss   float64
 }
 
