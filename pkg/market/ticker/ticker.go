@@ -1,7 +1,6 @@
 package ticker
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/LogicHou/gquant/pkg/dialect"
@@ -31,7 +30,7 @@ func (p *Publisher) Subscribe() Subscriber {
 	return ch
 }
 
-func (p *Publisher) Publish(c context.Context) error {
+func (p *Publisher) Publish() error {
 	ticker, err := p.dialect.Ticker()
 	if err != nil {
 		return fmt.Errorf("cannot get ticker chan: %v", err)

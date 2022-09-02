@@ -1,8 +1,6 @@
 package kline
 
 import (
-	"context"
-
 	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/indicator"
 	"go.uber.org/zap"
@@ -33,7 +31,7 @@ func (p *Publisher) Subscribe() Subscriber {
 	return ch
 }
 
-func (p *Publisher) Publish(c context.Context) chan struct{} {
+func (p *Publisher) Publish() chan struct{} {
 	trigger := make(chan struct{})
 
 	go func() {

@@ -15,17 +15,16 @@ import (
 )
 
 type TickerPublisher interface {
-	Publish(context.Context) error
+	Publish() error
 	Subscribe() ticker.Subscriber
 }
 
 type KlinePublisher interface {
-	Publish(context.Context) chan struct{}
+	Publish() chan struct{}
 	Subscribe() kline.Subscriber
 }
 
 type Strategy interface {
-	SetStrategy(chan struct{})
 	OnTickerUpdate(*indicator.Ticker) bool
 	OnKlineUpdate([]*indicator.Kline)
 }
@@ -49,9 +48,6 @@ func (s *Service) Serv(ctx context.Context) error {
 		}
 	}()
 
-	klineUpdateTrigger := s.KlinePublisher.Publish(ctx)
-	s.Strategy.SetStrategy(klineUpdateTrigger)
-
 	tickerSub := s.TickerPublisher.Subscribe()
 	go func() {
 		for t := range tickerSub {
@@ -59,7 +55,7 @@ func (s *Service) Serv(ctx context.Context) error {
 		}
 	}()
 
-	err := s.TickerPublisher.Publish(ctx)
+	err := s.TickerPublisher.Publish()
 	if err != nil {
 		return fmt.Errorf("can not get publish: %v", err)
 	}
