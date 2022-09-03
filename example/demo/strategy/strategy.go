@@ -4,8 +4,29 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/LogicHou/gquant/pkg/config"
+	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/indicator"
+	"go.uber.org/zap"
 )
+
+func New(logger *zap.Logger, conf *config.Configuration, dialect dialect.Dialect, trigger chan struct{}) (strategy *Strategy) {
+	s := &Strategy{
+		logger:             logger,
+		conf:               conf,
+		dialect:            dialect,
+		klineUpdateTrigger: trigger,
+		lastKline:          make([]*sKline, 2),
+		pid: &pid{
+			PosAmt:     0.00,
+			PosQty:     0,
+			EntryPrice: 0.00,
+			PosSide:    "",
+			StopLoss:   0.00,
+		},
+	}
+	return s
+}
 
 func (s *Strategy) OnTickerUpdate(ticker *indicator.Ticker) (pass bool) {
 	s.ticker = ticker

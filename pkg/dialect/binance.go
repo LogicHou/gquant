@@ -3,7 +3,6 @@ package dialect
 import (
 	"context"
 	"fmt"
-	"log"
 	"math"
 
 	"github.com/LogicHou/gquant/pkg/config"
@@ -133,15 +132,13 @@ func (b *binance) ClosePosition(posAmt float64) error {
 		qty = math.Abs(posAmt)
 	}
 
-	order, err := b.client.NewCreateOrderService().Symbol(b.conf.Symbol).
+	_, err := b.client.NewCreateOrderService().Symbol(b.conf.Symbol).
 		Side(sideType).Type("MARKET").
 		Quantity(utils.F64ToStr(qty)).
 		Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot create closePosition with NewCreateOrderService: %v", err)
 	}
-
-	log.Println("ClosePosition:", order)
 
 	err = b.client.NewCancelAllOpenOrdersService().Symbol(b.conf.Symbol).Do(context.Background())
 	if err != nil {
