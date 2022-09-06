@@ -2,16 +2,19 @@ package strategy
 
 import (
 	"github.com/LogicHou/gquant/pkg/config"
+	"github.com/LogicHou/gquant/pkg/dialect"
 	"github.com/LogicHou/gquant/pkg/indicator"
 	"go.uber.org/zap"
 )
 
 type Strategy struct {
-	Conf               *config.Configuration
-	Logger             *zap.Logger
+	conf               *config.Configuration
+	tune               *tune
+	logger             *zap.Logger
+	dialect            dialect.Dialect
 	ticker             *indicator.Ticker
 	klines             []*sKline
-	lastKline          *sKline
+	lastKline          []*sKline
 	klineUpdateTrigger chan struct{}
 	pid                *pid
 }
@@ -22,6 +25,10 @@ type pid struct {
 	EntryPrice float64
 	PosSide    indicator.ActionType
 	StopLoss   float64
+}
+
+type tune struct {
+	CrossOffset float64
 }
 
 func (s *Strategy) SetStrategy(trigger chan struct{}) {

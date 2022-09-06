@@ -28,13 +28,13 @@ const offset float64 = 1.50
 func (s *Strategy) openCondition(curMa5 float64, curMa10 float64) bool {
 	switch s.pid.PosSide {
 	case indicator.ActionBuy:
-		if s.lastKline.ma5 < s.lastKline.ma10 && curMa5 > curMa10+offset {
-			s.Logger.Info("BUY - ma5 up cross ma10 open condition triggered")
+		if s.lastKline[0].ma5 < s.lastKline[0].ma10 && curMa5 > curMa10+offset {
+			s.logger.Info("BUY - ma5 up cross ma10 open condition triggered")
 			return true
 		}
 	case indicator.ActionSell:
-		if s.lastKline.ma5 > s.lastKline.ma10 && curMa5 < curMa10-offset {
-			s.Logger.Info("SELL - ma5 down cross ma10 open condition triggered")
+		if s.lastKline[0].ma5 > s.lastKline[0].ma10 && curMa5 < curMa10-offset {
+			s.logger.Info("SELL - ma5 down cross ma10 open condition triggered")
 			return true
 		}
 	}
@@ -45,13 +45,13 @@ func (s *Strategy) openCondition(curMa5 float64, curMa10 float64) bool {
 func (s *Strategy) tpCondition() bool {
 	switch s.pid.PosSide {
 	case indicator.ActionBuy:
-		if (s.ticker.C/s.pid.EntryPrice)-1 > 0.05 {
-			s.Logger.Info("BUY - TP > 5% TP condition triggered")
+		if (s.ticker.C/s.pid.EntryPrice - 1) > 0.05 {
+			s.logger.Info("BUY - TP > 5% TP condition triggered")
 			return true
 		}
 	case indicator.ActionSell:
-		if (s.pid.EntryPrice/s.ticker.C)-1 > 0.05 {
-			s.Logger.Info("SELL - TP > 5% TP condition triggered")
+		if (s.ticker.C/s.pid.EntryPrice-1)*-1 > 0.05 {
+			s.logger.Info("SELL - TP > 5% TP condition triggered")
 			return true
 		}
 	}
@@ -63,12 +63,12 @@ func (s *Strategy) stCondition() bool {
 	switch s.pid.PosSide {
 	case indicator.ActionBuy:
 		if s.ticker.C < s.pid.StopLoss {
-			s.Logger.Sugar().Infof("BUY - ST condition triggered - PosSide:%s ticker.C:%f StopLoss:%f\n", s.pid.PosSide, s.ticker.C, s.pid.StopLoss)
+			s.logger.Sugar().Infof("BUY - ST condition triggered - PosSide:%s ticker.C:%f StopLoss:%f\n", s.pid.PosSide, s.ticker.C, s.pid.StopLoss)
 			return true
 		}
 	case indicator.ActionSell:
 		if s.ticker.C > s.pid.StopLoss {
-			s.Logger.Sugar().Infof("SELL - ST condition triggered - PosSide:%s ticker.C:%f StopLoss:%f\n", s.pid.PosSide, s.ticker.C, s.pid.StopLoss)
+			s.logger.Sugar().Infof("SELL - ST condition triggered - PosSide:%s ticker.C:%f StopLoss:%f\n", s.pid.PosSide, s.ticker.C, s.pid.StopLoss)
 			return true
 		}
 	}

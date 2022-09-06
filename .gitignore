@@ -16,7 +16,7 @@
 
 config.json
 
-*.yaml
+config.yaml
 
 testcmd/
 example/kdj/
