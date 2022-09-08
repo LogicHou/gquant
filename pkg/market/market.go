@@ -27,6 +27,7 @@ type KlinePublisher interface {
 type Strategy interface {
 	OnTickerUpdate(*indicator.Ticker) bool
 	OnKlineUpdate([]*indicator.Kline)
+	OnNotice()
 }
 
 type Service struct {
@@ -59,6 +60,10 @@ func (s *Service) Serv(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("can not get publish: %v", err)
 	}
+
+	go func() {
+		s.Strategy.OnNotice()
+	}()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

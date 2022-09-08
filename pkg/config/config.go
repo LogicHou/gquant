@@ -16,8 +16,9 @@ type (
 		Tune map[string]interface{}
 	}
 	Account struct {
-		AccessKey string
-		SecretKey string
+		AccessKey  string
+		SecretKey  string
+		TgBotToken string
 	}
 	Trade struct {
 		Dialect     string
