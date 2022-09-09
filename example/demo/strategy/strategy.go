@@ -122,3 +122,7 @@ func (s *Strategy) OnKlineUpdate(klines []*indicator.Kline) {
 
 	// s.logger.Sugar().Infof("KlineUpdated--> PosSide:%s PosAmt:%f PosQty:%d EntryPrice:%f Leverage:%f StopLoss:%f\n", s.pid.PosSide, s.pid.PosAmt, s.pid.PosQty, s.pid.EntryPrice, s.Conf.Trade.Leverage, s.pid.StopLoss)
 }
+
+func (s *Strategy) OnNotice() {
+
+}
