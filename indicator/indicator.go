@@ -28,7 +28,16 @@ type Ticker struct {
 	E int64   // EndTime
 }
 
-var RefreshTime = map[string]int64{"4h": 14404000, "2h": 7204000, "1h": 3604000, "30m": 1804000, "15m": 904000, "5m": 304000, "1m": 64000}
+var RefreshTime = map[string]int64{
+	"4h":  14404000,
+	"2h":  7204000,
+	"1h":  3604000,
+	"30m": 1804000,
+	"15m": 904000,
+	"5m":  304000,
+	"3m":  184000,
+	"1m":  64000,
+}
 
 type Indicator struct {
 	closing []float64
