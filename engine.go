@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	dialect "github.com/LogicHou/gquant/dialect"
+	"github.com/LogicHou/gquant/dialect"
 	"github.com/LogicHou/gquant/indicator"
 )
 
