@@ -85,12 +85,10 @@ func (b *binance) CreateOrder(price float64, action indicator.ActionType, qty fl
 
 	sideStop := futures.SideTypeBuy
 	sideType := futures.SideTypeSell
-	offset := +5.0
 	price = price + 0.05
 	if action == indicator.ActionBuy {
 		sideType = futures.SideTypeBuy
 		sideStop = futures.SideTypeSell
-		offset = -5.0
 		price = price - 0.05
 	}
 
@@ -106,7 +104,7 @@ func (b *binance) CreateOrder(price float64, action indicator.ActionType, qty fl
 	// 新建止损单
 	_, err = b.client.NewCreateOrderService().Symbol(b.config.Symbol).
 		Side(sideStop).Type("STOP_MARKET").
-		ClosePosition(true).StopPrice(utils.F64ToStr(utils.FRound2(stoploss + offset))).
+		ClosePosition(true).StopPrice(utils.F64ToStr(utils.FRound2(stoploss))).
 		Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot create stoploss market order: %v", err)
@@ -154,17 +152,15 @@ func (b *binance) CreateMarketOrder(action indicator.ActionType, qty float64, st
 
 	sideStop := futures.SideTypeBuy
 	sideType := futures.SideTypeSell
-	offset := +5.0
 	if action == indicator.ActionBuy {
 		sideType = futures.SideTypeBuy
 		sideStop = futures.SideTypeSell
-		offset = -5.0
 	}
 
 	// 预埋止损单 RestAPI
 	_, err = b.client.NewCreateOrderService().Symbol(b.config.Symbol).
 		Side(sideStop).Type("STOP_MARKET").
-		ClosePosition(true).StopPrice(utils.F64ToStr(utils.FRound2(stoploss + offset))).
+		ClosePosition(true).StopPrice(utils.F64ToStr(utils.FRound2(stoploss))).
 		Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot create stoploss market order: %v", err)
