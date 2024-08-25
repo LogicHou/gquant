@@ -46,7 +46,7 @@ func (engine *Engine) Run(platform dialect.Platform) {
 		log.Println(err)
 	}
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Server exiting")
